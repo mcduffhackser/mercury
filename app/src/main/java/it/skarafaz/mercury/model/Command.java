@@ -29,11 +29,20 @@ import java.io.Serializable;
 @SuppressWarnings("unused")
 public class Command implements Serializable, Comparable<Command> {
     private static final long serialVersionUID = -1107949489549383265L;
+    private Integer id;
     private String name;
     private Boolean sudo;
     private String cmd;
     private Boolean confirm;
     private Server server;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

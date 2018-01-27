@@ -54,6 +54,13 @@ public class SshCommandRegular extends SshCommand {
         this.confirm = command.getConfirm();
     }
 
+    public SshCommandRegular(Command command, Boolean autoConfirm, String password) {
+        this(command);
+
+        this.confirm = autoConfirm ? false : this.confirm;
+        this.password = password;
+    }
+
     @Override
     protected boolean beforeExecute() {
         if (confirm) {

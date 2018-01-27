@@ -52,9 +52,15 @@ import it.skarafaz.mercury.manager.ConfigManager;
 import it.skarafaz.mercury.manager.ExportPublicKeyStatus;
 import it.skarafaz.mercury.manager.LoadConfigFilesStatus;
 import it.skarafaz.mercury.manager.SshManager;
+import it.skarafaz.mercury.model.Command;
 import it.skarafaz.mercury.ssh.SshCommandPubKey;
+import it.skarafaz.mercury.ssh.SshCommandRegular;
 
 public class MainActivity extends MercuryActivity {
+    private static final String ACTION_EXECUTE_COMMAND = "it.skarafaz.mercury.action.EXECUTE_COMMAND";
+    private static final String EXTRA_ID = "id";
+    private static final String EXTRA_AUTO_CONFIRM = "autoConfirm";
+    private static final String EXTRA_PASSWORD = "password";
     private static final int STORAGE_PERMISSION_CONFIG_REQ = 1;
     private static final int STORAGE_PERMISSION_PUB_REQ = 2;
     private static final int APP_INFO_REQ = 1;
@@ -72,11 +78,25 @@ public class MainActivity extends MercuryActivity {
 
     private ServerPagerAdapter adapter;
     private MainEventSubscriber subscriber;
+
+    private Integer commandId;
+    private Boolean commandAutoConfirm;
+    private String commandPassword;
     private boolean busy = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (getIntent().getAction() != null && getIntent().getAction().equals(ACTION_EXECUTE_COMMAND)) {
+            int id = getIntent().getIntExtra(EXTRA_ID, -1);
+            boolean autoConfirm = getIntent().getBooleanExtra(EXTRA_AUTO_CONFIRM, false);
+            String password = getIntent().getStringExtra(EXTRA_PASSWORD);
+
+            commandId = id >= 0 ? id : null;
+            commandAutoConfirm = autoConfirm;
+            commandPassword = password;
+        }
 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
@@ -182,7 +202,7 @@ public class MainActivity extends MercuryActivity {
                     if (ConfigManager.getInstance().getServers().size() > 0) {
                         adapter.updateServers(ConfigManager.getInstance().getServers());
                         pager.setVisibility(View.VISIBLE);
-                        if (status == LoadConfigFilesStatus.ERROR) {
+                        if (status != LoadConfigFilesStatus.SUCCESS) {
                             Toast.makeText(MainActivity.this, getString(status.message()), Toast.LENGTH_LONG).show();
                         }
                     } else {
@@ -196,6 +216,16 @@ public class MainActivity extends MercuryActivity {
                         }
                     }
                     busy = false;
+
+                    if (MainActivity.this.commandId != null) {
+                        Command command = ConfigManager.getInstance().getCommandById(MainActivity.this.commandId);
+
+                        if (command != null) {
+                            new SshCommandRegular(command, commandAutoConfirm, commandPassword).start();
+                        } else {
+                            Toast.makeText(MainActivity.this, getString(R.string.unknown_command_id, MainActivity.this.commandId), Toast.LENGTH_LONG).show();
+                        }
+                    }
                 }
             }.execute();
         }

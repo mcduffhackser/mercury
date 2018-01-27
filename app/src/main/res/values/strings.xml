@@ -41,6 +41,7 @@
     <string name="command">Command</string>
     <string name="server">Server</string>
 
+    <string name="ambiguous_id_warn">Your config files contain some ambiguous command ids, please see log for details</string>
     <string name="cannot_create_config_dir">Cannot create\n%s</string>
     <string name="cannot_read_ext_storage">Cannot read external storage</string>
     <string name="cannot_write_ext_storage">Cannot write to external storage</string>
@@ -66,6 +67,7 @@
     <string name="settings">Settings</string>
     <string name="type_login_password">Login %s</string>
     <string name="type_sudo_password">Sudo password for %s</string>
+    <string name="unknown_command_id">Unknown command id: %d</string>
     <string name="validation_missing">is missing</string>
     <string name="validation_invalid">is invalid</string>
     <string name="validation_file">Failed to validate [%s]:</string>

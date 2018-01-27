@@ -31,11 +31,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import it.skarafaz.mercury.MercuryApplication;
 import it.skarafaz.mercury.jackson.ServerMapper;
 import it.skarafaz.mercury.jackson.ValidationException;
+import it.skarafaz.mercury.model.Command;
 import it.skarafaz.mercury.model.Server;
 
 public class ConfigManager {
@@ -46,11 +49,13 @@ public class ConfigManager {
     private File configDir;
     private ServerMapper mapper;
     private List<Server> servers;
+    private Map<Integer, Command> commandsById;
 
     private ConfigManager() {
         configDir = new File(Environment.getExternalStorageDirectory(), CONFIG_DIR);
         mapper = new ServerMapper();
         servers = new ArrayList<>();
+        commandsById = new HashMap<>();
     }
 
     public static synchronized ConfigManager getInstance() {
@@ -68,6 +73,10 @@ public class ConfigManager {
         return servers;
     }
 
+    public Command getCommandById(Integer id) {
+        return commandsById.get(id);
+    }
+
     public LoadConfigFilesStatus loadConfigFiles() {
         servers.clear();
 
@@ -77,7 +86,21 @@ public class ConfigManager {
                 if (configDir.exists() && configDir.isDirectory()) {
                     for (File file : listConfigFiles()) {
                         try {
-                            servers.add(mapper.readValue(file));
+                            Server server = mapper.readValue(file);
+                            servers.add(server);
+
+                            for (Command command : server.getCommands()) {
+                                if (command.getId() != null) {
+                                    if (!commandsById.containsKey(command.getId())) {
+                                        commandsById.put(command.getId(), command);
+                                    } else {
+                                        if (status == LoadConfigFilesStatus.SUCCESS) {
+                                            status = LoadConfigFilesStatus.AMBIGUOUS_ID;
+                                        }
+                                        logger.warn("Ambiguous command id: {}", command.getId());
+                                    }
+                                }
+                            }
                         } catch (IOException | ValidationException e) {
                             status = LoadConfigFilesStatus.ERROR;
                             logger.error(e.getMessage().replace("\n", " "));

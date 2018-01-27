@@ -24,6 +24,7 @@ import it.skarafaz.mercury.R;
 
 public enum LoadConfigFilesStatus {
     SUCCESS(R.string.empty_config_dir),
+    AMBIGUOUS_ID(R.string.ambiguous_id_warn),
     ERROR(R.string.load_config_files_error),
     CANNOT_READ_EXT_STORAGE(R.string.cannot_read_ext_storage),
     CANNOT_CREATE_CONFIG_DIR(R.string.cannot_create_config_dir),
