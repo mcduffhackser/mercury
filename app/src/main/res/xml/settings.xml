@@ -37,4 +37,20 @@
         </Preference>
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/settings_group_drive">
+        <SwitchPreference
+                android:title="@string/settings_load_from_drive"
+                android:key="settings_load_from_drive"
+                android:defaultValue="false"/>
+
+        <Preference
+                android:title="@string/settings_manage_drive_resources"
+                android:key="settings_manage_drive_resources"
+                android:dependency="settings_load_from_drive">
+            <intent
+                    android:targetClass="it.skarafaz.mercury.activity.DriveResourcesActivity"
+                    android:targetPackage="it.skarafaz.mercury"/>
+        </Preference>
+    </PreferenceCategory>
+
 </PreferenceScreen>

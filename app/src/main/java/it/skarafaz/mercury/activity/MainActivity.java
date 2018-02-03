@@ -26,6 +26,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
@@ -68,6 +69,8 @@ public class MainActivity extends MercuryActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false);
 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
