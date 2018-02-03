@@ -28,9 +28,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,7 +41,6 @@ import butterknife.ButterKnife;
 import it.skarafaz.mercury.MercuryApplication;
 import it.skarafaz.mercury.R;
 import it.skarafaz.mercury.adapter.ServerPagerAdapter;
-import it.skarafaz.mercury.fragment.ProgressDialogFragment;
 import it.skarafaz.mercury.manager.ConfigManager;
 import it.skarafaz.mercury.manager.ExportPublicKeyStatus;
 import it.skarafaz.mercury.manager.LoadConfigFilesStatus;
@@ -120,6 +116,12 @@ public class MainActivity extends MercuryActivity {
             case R.id.action_reload:
                 loadConfigFiles();
                 return true;
+            case R.id.action_help:
+                startActivity(new Intent(this, HelpActivity.class));
+                return true;
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
             case R.id.action_export_public_key:
                 exportPublicKey();
                 return true;
@@ -128,9 +130,6 @@ public class MainActivity extends MercuryActivity {
                 return true;
             case R.id.action_log:
                 startActivity(new Intent(this, LogActivity.class));
-                return true;
-            case R.id.action_help:
-                startActivity(new Intent(this, HelpActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
