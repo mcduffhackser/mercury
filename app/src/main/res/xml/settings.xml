@@ -23,15 +23,18 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="@string/settings_group_public_key">
-
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="@string/settings_group_drive">
-
-        <SwitchPreference
-                android:title="@string/settings_enable_drive"
-                android:key="settings_enable_drive"
-                android:defaultValue="false"/>
+        <Preference android:title="@string/settings_export_public_key">
+            <intent
+                    android:action="it.skarafaz.mercury.EXPORT_PUBLIC_KEY"
+                    android:targetClass="it.skarafaz.mercury.activity.SettingsActivity"
+                    android:targetPackage="it.skarafaz.mercury"/>
+        </Preference>
+        <Preference android:title="@string/settings_send_public_key">
+            <intent
+                    android:action="it.skarafaz.mercury.SEND_PUBLIC_KEY"
+                    android:targetClass="it.skarafaz.mercury.activity.SettingsActivity"
+                    android:targetPackage="it.skarafaz.mercury"/>
+        </Preference>
     </PreferenceCategory>
 
 </PreferenceScreen>
