@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~ Mercury-SSH
-  ~ Copyright (C) 2017 Skarafaz
+  ~ Copyright (C) 2018 Skarafaz
   ~
   ~ This file is part of Mercury-SSH.
   ~
@@ -19,11 +20,15 @@
   ~ along with Mercury-SSH.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<resources>
-    <color name="primary">#ff37474f</color>
-    <color name="primary_dark">#ff263238</color>
-    <color name="text_primary">#ffffffff</color>
-    <color name="text_secondary">#b2ffffff</color>
-    <color name="text_disabled">#4cffffff</color>
-    <color name="list_selected">#32ffffff</color>
-</resources>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/fileName"
+          android:layout_width="match_parent"
+          android:layout_height="56dp"
+          android:gravity="center_vertical"
+          android:paddingStart="16dp"
+          android:paddingEnd="16dp"
+          android:ellipsize="end"
+          android:singleLine="true"
+          android:background="?android:attr/activatedBackgroundIndicator"
+          android:textSize="16sp"
+          android:textColor="?android:attr/textColorPrimary"/>

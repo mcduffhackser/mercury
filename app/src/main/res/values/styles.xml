@@ -27,6 +27,8 @@
     <style name="AppThemeBase" parent="Theme.AppCompat">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="actionModeBackground">@color/primary</item>
+        <item name="android:activatedBackgroundIndicator">@drawable/activated_background_indicator</item>
         <item name="md_dark_theme">true</item>
     </style>
 
