@@ -143,6 +143,8 @@ public class MainActivity extends MercuryActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
         switch (requestCode) {
             case RC_START_APP_INFO:
                 loadConfigFiles();

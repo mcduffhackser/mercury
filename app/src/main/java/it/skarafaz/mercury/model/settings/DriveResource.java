@@ -22,6 +22,7 @@ package it.skarafaz.mercury.model.settings;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.android.gms.drive.DriveId;
+import com.google.android.gms.drive.Metadata;
 
 import java.io.Serializable;
 
@@ -37,6 +38,10 @@ public class DriveResource implements Serializable {
     public DriveResource(String fileName, String driveIdString) {
         this.fileName = fileName;
         this.driveIdString = driveIdString;
+    }
+
+    public DriveResource(Metadata metadata) {
+        update(metadata);
     }
 
     public String getFileName() {
@@ -63,6 +68,11 @@ public class DriveResource implements Serializable {
     @JsonIgnore
     public void setDriveId(DriveId driveId) {
         driveIdString = driveId.encodeToString();
+    }
+
+    public void update(Metadata metadata) {
+        this.fileName = metadata.getTitle();
+        this.driveIdString = metadata.getDriveId().encodeToString();
     }
 
     @Override
