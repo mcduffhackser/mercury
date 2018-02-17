@@ -21,6 +21,7 @@
 package it.skarafaz.mercury.fragment;
 
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -30,6 +31,7 @@ import android.view.*;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,20 +46,23 @@ import java.io.IOException;
 
 public class DriveResourcesFragment extends ListFragment implements AbsListView.MultiChoiceModeListener {
     private static final Logger logger = LoggerFactory.getLogger(DriveResourcesFragment.class);
-    public static final String DRIVE_RESOURCES_KEY = "settings_drive_resources";
-    private ObjectMapper objectMapper = new ObjectMapper();
-    private DriveResourceBundle resources;
+    private static final String DRIVE_RESOURCES_KEY = "settings_drive_resources";
 
+    @BindView(R.id.progress)
+    protected ProgressBar progressBar;
     @BindView(R.id.add)
     protected FloatingActionButton addButton;
 
     private ArrayAdapter<DriveResource> listAdapter;
 
+    private ObjectMapper objectMapper = new ObjectMapper();
+    private DriveResourceBundle resources = new DriveResourceBundle(0);
+    private boolean busy = false;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        readResources();
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -86,12 +91,31 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
                 writeResources();
             }
         });
+
+        readResources();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_drive_resources, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_reload:
+                readResources();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         MenuInflater inflater = mode.getMenuInflater();
         inflater.inflate(R.menu.menu_context_drive_resources, menu);
+        addButton.hide();
         return true;
     }
 
@@ -103,7 +127,7 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
     @Override
     public void onDestroyActionMode(ActionMode mode) {
-        // Nothing to do
+        addButton.show();
     }
 
     @Override
@@ -126,7 +150,7 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
     private void removeSelectedResources() {
         SparseBooleanArray positions = getListView().getCheckedItemPositions();
 
-        for (int i = positions.size() - 1; i >=0; i--) {
+        for (int i = positions.size() - 1; i >= 0; i--) {
             if (positions.valueAt(i)) {
                 listAdapter.remove(listAdapter.getItem(positions.keyAt(i)));
             }
@@ -136,8 +160,44 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
     }
 
     private void readResources() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        resources = deserializeResources(prefs.getString(DRIVE_RESOURCES_KEY, null));
+        if (!busy) {
+            new AsyncTask<Void, Void, DriveResourceBundle>() {
+                @Override
+                protected void onPreExecute() {
+                    busy = true;
+                    progressBar.setVisibility(View.VISIBLE);
+                    getListView().setVisibility(View.INVISIBLE);
+                    getListView().getEmptyView().setVisibility(View.INVISIBLE);
+                    addButton.hide();
+                }
+
+                @Override
+                protected DriveResourceBundle doInBackground(Void... voids) {
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    DriveResourceBundle resources = deserializeResources(prefs.getString(DRIVE_RESOURCES_KEY, null));
+
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    // TODO update metadata
+
+                    return resources;
+                }
+
+                @Override
+                protected void onPostExecute(DriveResourceBundle resources) {
+                    listAdapter.clear();
+                    listAdapter.addAll(resources);
+
+                    progressBar.setVisibility(View.INVISIBLE);
+                    addButton.show();
+                    busy = false;
+                }
+            }.execute();
+        }
     }
 
     private DriveResourceBundle deserializeResources(String str) {
