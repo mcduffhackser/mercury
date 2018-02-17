@@ -35,11 +35,6 @@ public class DriveResource implements Serializable {
     public DriveResource() {
     }
 
-    public DriveResource(String fileName, String driveIdString) {
-        this.fileName = fileName;
-        this.driveIdString = driveIdString;
-    }
-
     public DriveResource(Metadata metadata) {
         update(metadata);
     }
