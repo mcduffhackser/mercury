@@ -22,10 +22,8 @@ package it.skarafaz.mercury.fragment;
 
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
@@ -35,37 +33,25 @@ import android.view.*;
 import android.widget.*;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.drive.DriveId;
-import com.google.android.gms.drive.DriveStatusCodes;
-import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.OpenFileActivityOptions;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.SearchableField;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
-import com.google.android.gms.tasks.Tasks;
 import it.skarafaz.mercury.MercuryApplication;
 import it.skarafaz.mercury.R;
 import it.skarafaz.mercury.activity.MercuryActivity;
+import it.skarafaz.mercury.manager.DriveResourcesManager;
 import it.skarafaz.mercury.model.event.DriveReady;
 import it.skarafaz.mercury.model.settings.DriveResource;
 import it.skarafaz.mercury.model.settings.DriveResourceBundle;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 public class DriveResourcesFragment extends ListFragment implements AbsListView.MultiChoiceModeListener {
-    private static final Logger logger = LoggerFactory.getLogger(DriveResourcesFragment.class);
-    private static final String DRIVE_RESOURCES_KEY = "settings_drive_resources";
     private static final int RC_PICK_TEXT_FILE = 101;
     private static final int DRC_LOAD_RESOURCES = 301;
     private static final int DRC_ADD_RESOURCE = 302;
@@ -76,9 +62,6 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
     protected FloatingActionButton addButton;
 
     private ArrayAdapter<DriveResource> listAdapter;
-
-    private ObjectMapper objectMapper = new ObjectMapper();
-    private DriveResourceBundle resources = new DriveResourceBundle(0);
     private TaskCompletionSource<DriveId> openItemTask;
     private boolean busy = false;
 
@@ -99,7 +82,7 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        listAdapter = new ArrayAdapter<>(getActivity(), R.layout.drive_resource_list_item, resources);
+        listAdapter = new ArrayAdapter<>(getActivity(), R.layout.drive_resource_list_item, DriveResourcesManager.getInstance().getResources());
         setListAdapter(listAdapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -118,7 +101,6 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
         super.onStart();
 
         EventBus.getDefault().register(this);
-
         getMecuryActivity().refreshDriveSignin(DRC_LOAD_RESOURCES);
     }
 
@@ -227,47 +209,18 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
                 @Override
                 protected Boolean doInBackground(Void... voids) {
-                    boolean success = true;
-
-                    DriveResourceBundle savedResources = readResourcesFromPrefs();
-                    DriveResourceBundle updatedResources = new DriveResourceBundle(0);
-
-                    for (DriveResource res : savedResources) {
-                        try {
-                            Metadata metadata = Tasks.await(getMecuryActivity().getDriveResourceClient().getMetadata(res.getDriveId().asDriveFile()));
-
-                            if (!metadata.isExplicitlyTrashed() && !metadata.isTrashed()) {
-                                res.update(metadata);
-                                updatedResources.add(res);
-                            }
-                        } catch (ExecutionException e) {
-                            if (!(e.getCause() instanceof ApiException) || ((ApiException) e.getCause()).getStatusCode() != DriveStatusCodes.DRIVE_RESOURCE_NOT_AVAILABLE) {
-                                success = false;
-                                logger.error(e.getMessage().replace("\n", " "));
-                            }
-                        } catch (InterruptedException e) {
-                            success = false;
-                            logger.error(e.getMessage().replace("\n", " "));
-                        }
-                    }
-
-                    resources.clear();
-                    resources.addAll(updatedResources);
-
-                    writeResourcesToPrefs();
-
-                    return success;
+                    return DriveResourcesManager.getInstance().updateResources(getMecuryActivity().getDriveResourceClient());
                 }
 
                 @Override
                 protected void onPostExecute(Boolean success) {
                     // TODO message on empty view
 
-                    listAdapter.notifyDataSetChanged();
-
                     if (!success) {
                         Toast.makeText(getActivity(), getString(R.string.update_drive_resource_failure), Toast.LENGTH_LONG).show();
                     }
+
+                    listAdapter.notifyDataSetChanged();
 
                     progressBar.setVisibility(View.INVISIBLE);
                     addButton.show();
@@ -286,22 +239,7 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
             @Override
             protected Boolean doInBackground(Void... voids) {
-                boolean success = true;
-
-                try {
-                    DriveId driveId = Tasks.await(pickTextFile());
-                    Metadata metadata = Tasks.await(getMecuryActivity().getDriveResourceClient().getMetadata(driveId.asDriveFile()));
-
-                    resources.add(new DriveResource(metadata)); // TODO check if already added
-
-                    writeResourcesToPrefs();
-                } catch (ExecutionException e) {
-                    success = false;
-                } catch (InterruptedException e) {
-                    success = false;
-                }
-
-                return success;
+                return DriveResourcesManager.getInstance().addResource(getMecuryActivity().getDriveResourceClient(), pickTextFile());
             }
 
             @Override
@@ -310,6 +248,9 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
                 if (success) {
                     listAdapter.notifyDataSetChanged();
+                    Toast.makeText(getActivity(), getString(R.string.drive_resource_added), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getActivity(), getString(R.string.cannot_add_drive_resource), Toast.LENGTH_LONG).show();
                 }
             }
         }.execute();
@@ -339,51 +280,17 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
     private void removeSelectedResources() {
         SparseBooleanArray positions = getListView().getCheckedItemPositions();
 
+        DriveResourceBundle toRemove = new DriveResourceBundle(0);
+
         for (int i = positions.size() - 1; i >= 0; i--) {
             if (positions.valueAt(i)) {
-                listAdapter.remove(listAdapter.getItem(positions.keyAt(i)));
+                toRemove.add(listAdapter.getItem(positions.keyAt(i)));
             }
         }
 
-        writeResourcesToPrefs(); // TODO async ?
-    }
+        DriveResourcesManager.getInstance().removeResources(toRemove); // TODO async?
 
-    private DriveResourceBundle readResourcesFromPrefs() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        return deserializeResources(prefs.getString(DRIVE_RESOURCES_KEY, null));
-    }
-
-    private String serializeResources(DriveResourceBundle resources) {
-        String str = null;
-
-        if (resources != null) {
-            try {
-                str = objectMapper.writeValueAsString(resources);
-            } catch (JsonProcessingException e) {
-                logger.error(e.getMessage().replace("\n", " "));
-            }
-        }
-
-        return str;
-    }
-
-    private void writeResourcesToPrefs() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        prefs.edit().putString(DRIVE_RESOURCES_KEY, serializeResources(resources)).apply();
-    }
-
-    private DriveResourceBundle deserializeResources(String str) {
-        DriveResourceBundle resources = new DriveResourceBundle();
-
-        if (str != null) {
-            try {
-                resources = objectMapper.readValue(str, DriveResourceBundle.class);
-            } catch (IOException e) {
-                logger.error(e.getMessage().replace("\n", " "));
-            }
-        }
-
-        return resources;
+        listAdapter.notifyDataSetChanged();
     }
 
     private MercuryActivity getMecuryActivity() {

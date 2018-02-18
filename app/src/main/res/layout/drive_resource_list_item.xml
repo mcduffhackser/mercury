@@ -21,7 +21,7 @@
   -->
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-          android:id="@+id/fileName"
+          android:id="@+id/title"
           android:layout_width="match_parent"
           android:layout_height="56dp"
           android:gravity="center_vertical"

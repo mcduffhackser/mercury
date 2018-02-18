@@ -20,16 +20,19 @@
 
 package it.skarafaz.mercury.model.settings;
 
+import android.support.annotation.NonNull;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.Metadata;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serializable;
 
 @SuppressWarnings("unused")
-public class DriveResource implements Serializable {
+public class DriveResource implements Serializable, Comparable<DriveResource> {
     private static final long serialVersionUID = 4570407809866461209L;
-    private String fileName;
+    private String title;
     private String driveIdString;
 
     public DriveResource() {
@@ -39,12 +42,12 @@ public class DriveResource implements Serializable {
         update(metadata);
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getTitle() {
+        return title;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDriveIdString() {
@@ -66,12 +69,37 @@ public class DriveResource implements Serializable {
     }
 
     public void update(Metadata metadata) {
-        this.fileName = metadata.getTitle();
+        this.title = metadata.getTitle();
         this.driveIdString = metadata.getDriveId().encodeToString();
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof DriveResource)) {
+            return false;
+        }
+
+        DriveResource other = (DriveResource) o;
+
+        return new EqualsBuilder().append(getDriveId(), other.getDriveId()).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(getDriveId()).toHashCode();
+    }
+
+    @Override
+    public int compareTo(@NonNull DriveResource o) {
+        return title.compareTo(o.getTitle());
+    }
+
+    @Override
     public String toString() {
-        return fileName;
+        return title;
     }
 }
