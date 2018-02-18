@@ -120,7 +120,7 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
                 if (resultCode == AppCompatActivity.RESULT_OK) {
                     openItemTask.setResult((DriveId) data.getParcelableExtra(OpenFileActivityOptions.EXTRA_RESPONSE_DRIVE_ID));
                 } else {
-                    openItemTask.setException(new RuntimeException("No file selected"));
+                    openItemTask.setException(new RuntimeException());
                 }
                 break;
         }
@@ -249,8 +249,6 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
                 if (success) {
                     listAdapter.notifyDataSetChanged();
                     Toast.makeText(getActivity(), getString(R.string.drive_resource_added), Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getActivity(), getString(R.string.cannot_add_drive_resource), Toast.LENGTH_LONG).show();
                 }
             }
         }.execute();

@@ -103,7 +103,7 @@ public class DriveResourcesManager {
     }
 
     public boolean addResource(DriveResourceClient driveResourceClient, Task<DriveId> pickFileTask) {
-        boolean success = true;
+        boolean success = false;
 
         try {
             DriveId driveId = Tasks.await(pickFileTask);
@@ -116,10 +116,11 @@ public class DriveResourcesManager {
                 Collections.sort(resources);
 
                 writeResources();
+
+                success = true;
             }
         } catch (ExecutionException e) {
-            logger.error(e.getMessage().replace("\n", " "));
-            success = false;
+            // ignore
         } catch (InterruptedException e) {
             // ignore
         }

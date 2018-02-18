@@ -53,7 +53,6 @@
     <string name="server">Server</string>
 
     <string name="add_drive_resource">Add Drive resource</string>
-    <string name="cannot_add_drive_resource">Cannot add rive resource, please see log for details</string>
     <string name="cannot_create_config_dir">Cannot create\n%s</string>
     <string name="cannot_read_ext_storage">Cannot read external storage</string>
     <string name="cannot_write_ext_storage">Cannot write to external storage</string>
