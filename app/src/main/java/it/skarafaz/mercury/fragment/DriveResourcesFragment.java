@@ -243,6 +243,7 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
         new AsyncTask<Void, Void, AddDriveResourceStatus>() {
             @Override
             protected void onPreExecute() {
+                busy = true;
                 MercuryApplication.showProgressDialog(getFragmentManager(), getString(R.string.wait));
             }
 
@@ -264,6 +265,8 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
                     resources.addAll(DriveResourcesManager.getInstance().getResources());
                     listAdapter.notifyDataSetChanged();
                 }
+
+                busy = false;
             }
         }.execute();
     }
