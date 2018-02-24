@@ -1,6 +1,6 @@
 /*
  * Mercury-SSH
- * Copyright (C) 2017 Skarafaz
+ * Copyright (C) 2018 Skarafaz
  *
  * This file is part of Mercury-SSH.
  *
@@ -18,7 +18,7 @@
  * along with Mercury-SSH.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.skarafaz.mercury.manager;
+package it.skarafaz.mercury.manager.ssh;
 
 import android.Manifest;
 import android.content.Context;

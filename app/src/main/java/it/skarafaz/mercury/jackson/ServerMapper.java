@@ -40,11 +40,11 @@ public class ServerMapper {
         mapper = new ObjectMapper();
     }
 
-    public Server readValue(File src) throws IOException, ValidationException {
+    public Server readValue(File src) throws IOException, ServerValidationException {
         Server server = mapper.readValue(src, Server.class);
         Map<String, String> errors = validateServer(server);
         if (errors.size() > 0) {
-            throw new ValidationException(getValidationErrorMessage(src, errors));
+            throw new ServerValidationException(getValidationErrorMessage(src, errors));
         }
         return server;
     }

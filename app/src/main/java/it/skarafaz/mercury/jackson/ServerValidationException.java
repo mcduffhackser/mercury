@@ -1,6 +1,6 @@
 /*
  * Mercury-SSH
- * Copyright (C) 2018 Skarafaz
+ * Copyright (C) 2017 Skarafaz
  *
  * This file is part of Mercury-SSH.
  *
@@ -18,22 +18,12 @@
  * along with Mercury-SSH.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.skarafaz.mercury.manager;
+package it.skarafaz.mercury.jackson;
 
-import it.skarafaz.mercury.R;
+public class ServerValidationException extends Exception {
+    private static final long serialVersionUID = 5137298023298850552L;
 
-public enum LoadDriveResourcesStatus {
-    SUCCESS(null),
-    ERRORS(R.string.update_drive_resource_failure),
-    INTERRUPTED(null);
-
-    private Integer message;
-
-    LoadDriveResourcesStatus(Integer message) {
-        this.message = message;
-    }
-
-    public Integer message() {
-        return message;
+    public ServerValidationException(String message) {
+        super(message);
     }
 }

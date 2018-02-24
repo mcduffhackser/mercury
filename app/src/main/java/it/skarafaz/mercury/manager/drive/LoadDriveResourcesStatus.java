@@ -18,19 +18,18 @@
  * along with Mercury-SSH.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.skarafaz.mercury.manager;
+package it.skarafaz.mercury.manager.drive;
 
 import it.skarafaz.mercury.R;
 
-public enum AddDriveResourceStatus {
-    SUCCESS(R.string.drive_resource_added),
-    CANCELED(null),
-    ERROR(R.string.cannot_add_drive_resource),
+public enum LoadDriveResourcesStatus {
+    SUCCESS(null),
+    ERRORS(R.string.update_drive_resource_failure),
     INTERRUPTED(null);
 
     private Integer message;
 
-    AddDriveResourceStatus(Integer message) {
+    LoadDriveResourcesStatus(Integer message) {
         this.message = message;
     }
 

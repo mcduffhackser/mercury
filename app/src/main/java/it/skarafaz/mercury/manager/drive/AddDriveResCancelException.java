@@ -1,6 +1,6 @@
 /*
  * Mercury-SSH
- * Copyright (C) 2017 Skarafaz
+ * Copyright (C) 2018 Skarafaz
  *
  * This file is part of Mercury-SSH.
  *
@@ -18,24 +18,13 @@
  * along with Mercury-SSH.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.skarafaz.mercury.manager;
+package it.skarafaz.mercury.manager.drive;
 
-import it.skarafaz.mercury.R;
 
-public enum LoadConfigFilesStatus {
-    SUCCESS(R.string.empty_config_dir),
-    ERROR(R.string.load_config_files_error),
-    CANNOT_READ_EXT_STORAGE(R.string.cannot_read_ext_storage),
-    CANNOT_CREATE_CONFIG_DIR(R.string.cannot_create_config_dir),
-    PERMISSION(R.string.load_config_files_permission);
+public class AddDriveResCancelException extends RuntimeException {
+    private static final long serialVersionUID = 510429780904840623L;
 
-    private int message;
-
-    LoadConfigFilesStatus(int message) {
-        this.message = message;
-    }
-
-    public int message() {
-        return message;
+    public AddDriveResCancelException() {
+        super("No resource selected");
     }
 }

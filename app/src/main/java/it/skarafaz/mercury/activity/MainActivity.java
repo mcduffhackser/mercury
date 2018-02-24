@@ -42,8 +42,8 @@ import butterknife.ButterKnife;
 import it.skarafaz.mercury.MercuryApplication;
 import it.skarafaz.mercury.R;
 import it.skarafaz.mercury.adapter.ServerPagerAdapter;
-import it.skarafaz.mercury.manager.ConfigManager;
-import it.skarafaz.mercury.manager.LoadConfigFilesStatus;
+import it.skarafaz.mercury.manager.config.ConfigManager;
+import it.skarafaz.mercury.manager.config.LoadConfigFilesStatus;
 import it.skarafaz.mercury.ssh.SshEventSubscriber;
 import org.greenrobot.eventbus.EventBus;
 

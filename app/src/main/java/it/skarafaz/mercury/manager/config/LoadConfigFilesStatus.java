@@ -1,6 +1,6 @@
 /*
  * Mercury-SSH
- * Copyright (C) 2017 Skarafaz
+ * Copyright (C) 2018 Skarafaz
  *
  * This file is part of Mercury-SSH.
  *
@@ -18,12 +18,24 @@
  * along with Mercury-SSH.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.skarafaz.mercury.jackson;
+package it.skarafaz.mercury.manager.config;
 
-public class ValidationException extends Exception {
-    private static final long serialVersionUID = 5137298023298850552L;
+import it.skarafaz.mercury.R;
 
-    public ValidationException(String message) {
-        super(message);
+public enum LoadConfigFilesStatus {
+    SUCCESS(R.string.empty_config_dir),
+    ERROR(R.string.load_config_files_error),
+    CANNOT_READ_EXT_STORAGE(R.string.cannot_read_ext_storage),
+    CANNOT_CREATE_CONFIG_DIR(R.string.cannot_create_config_dir),
+    PERMISSION(R.string.load_config_files_permission);
+
+    private int message;
+
+    LoadConfigFilesStatus(int message) {
+        this.message = message;
+    }
+
+    public int message() {
+        return message;
     }
 }

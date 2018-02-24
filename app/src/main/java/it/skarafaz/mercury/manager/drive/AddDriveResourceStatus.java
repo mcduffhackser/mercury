@@ -18,13 +18,23 @@
  * along with Mercury-SSH.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.skarafaz.mercury.exception;
+package it.skarafaz.mercury.manager.drive;
 
+import it.skarafaz.mercury.R;
 
-public class AddDriveResCancelException extends RuntimeException {
-    private static final long serialVersionUID = 510429780904840623L;
+public enum AddDriveResourceStatus {
+    SUCCESS(R.string.drive_resource_added),
+    CANCELED(null),
+    ERROR(R.string.cannot_add_drive_resource),
+    INTERRUPTED(null);
 
-    public AddDriveResCancelException() {
-        super("No resource selected");
+    private Integer message;
+
+    AddDriveResourceStatus(Integer message) {
+        this.message = message;
+    }
+
+    public Integer message() {
+        return message;
     }
 }

@@ -18,7 +18,7 @@
  * along with Mercury-SSH.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.skarafaz.mercury.manager;
+package it.skarafaz.mercury.manager.drive;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -32,7 +32,6 @@ import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import it.skarafaz.mercury.MercuryApplication;
-import it.skarafaz.mercury.exception.AddDriveResCancelException;
 import it.skarafaz.mercury.model.settings.DriveResource;
 import it.skarafaz.mercury.model.settings.DriveResourceBundle;
 import org.slf4j.Logger;

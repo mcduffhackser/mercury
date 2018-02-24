@@ -1,6 +1,6 @@
 /*
  * Mercury-SSH
- * Copyright (C) 2017 Skarafaz
+ * Copyright (C) 2018 Skarafaz
  *
  * This file is part of Mercury-SSH.
  *
@@ -18,13 +18,13 @@
  * along with Mercury-SSH.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package it.skarafaz.mercury.manager;
+package it.skarafaz.mercury.manager.config;
 
 import android.Manifest;
 import android.os.Environment;
 import it.skarafaz.mercury.MercuryApplication;
 import it.skarafaz.mercury.jackson.ServerMapper;
-import it.skarafaz.mercury.jackson.ValidationException;
+import it.skarafaz.mercury.jackson.ServerValidationException;
 import it.skarafaz.mercury.model.config.Server;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -77,7 +77,7 @@ public class ConfigManager {
                     for (File file : listConfigFiles()) {
                         try {
                             servers.add(mapper.readValue(file));
-                        } catch (IOException | ValidationException e) {
+                        } catch (IOException | ServerValidationException e) {
                             status = LoadConfigFilesStatus.ERROR;
                             logger.error(e.getMessage().replace("\n", " "));
                         }
