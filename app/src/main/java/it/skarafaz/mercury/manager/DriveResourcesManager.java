@@ -67,25 +67,25 @@ public class DriveResourcesManager {
         return resources;
     }
 
-    public boolean updateResources(DriveResourceClient driveResourceClient) {
+    public boolean loadResources(DriveResourceClient driveResourceClient) {
         boolean success = true;
 
-        DriveResourceBundle savedResources = readResources();
-        DriveResourceBundle updatedResources = new DriveResourceBundle(0);
+        resources.clear();
 
-        for (DriveResource resource : savedResources) {
+        for (DriveResource resource : readResources()) {
             try {
                 Metadata metadata = Tasks.await(driveResourceClient.getMetadata(resource.getDriveId().asDriveFile()));
 
                 if (!metadata.isExplicitlyTrashed() && !metadata.isTrashed()) {
                     resource.update(metadata);
-                    updatedResources.add(resource);
+                    resources.add(resource);
                 }
             } catch (ExecutionException e) {
-                Throwable cause = e.getCause();
+                Integer statusCode = extractStatusCode(e);
 
-                if (!(cause instanceof ApiException) || ((ApiException) cause).getStatusCode() == DriveStatusCodes.DRIVE_RESOURCE_NOT_AVAILABLE) {
-                    logger.error("{} - {}", resource, e.getMessage().replace("\n", " "));
+                if (statusCode == null || statusCode != DriveStatusCodes.DRIVE_RESOURCE_NOT_AVAILABLE) {
+                    String message = e.getCause().getMessage().replace("\n", " ");
+                    logger.error("Cannot sync drive resource {}: {}", resource, message);
                     success = false;
                 }
             } catch (InterruptedException e) {
@@ -93,8 +93,6 @@ public class DriveResourcesManager {
             }
         }
 
-        resources.clear();
-        resources.addAll(updatedResources);
         Collections.sort(resources);
 
         writeResources();
@@ -129,12 +127,8 @@ public class DriveResourcesManager {
     }
 
     public void removeResources(Collection<DriveResource> toRemove) {
-        if (toRemove.size() > 0) {
-            resources.removeAll(toRemove);
-            Collections.sort(resources);
-
-            writeResources();
-        }
+        resources.removeAll(toRemove);
+        writeResources();
     }
 
     private DriveResourceBundle readResources() {
@@ -173,5 +167,16 @@ public class DriveResourcesManager {
         }
 
         return str;
+    }
+
+    private Integer extractStatusCode(ExecutionException e) {
+        Integer status = null;
+
+        Throwable cause = e.getCause();
+        if (cause instanceof ApiException) {
+            status = ((ApiException) cause).getStatusCode();
+        }
+
+        return status;
     }
 }

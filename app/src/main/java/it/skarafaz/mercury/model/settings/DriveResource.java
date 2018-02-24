@@ -33,7 +33,7 @@ import java.io.Serializable;
 public class DriveResource implements Serializable, Comparable<DriveResource> {
     private static final long serialVersionUID = 4570407809866461209L;
     private String title;
-    private String driveIdString;
+    private String encodedDriveId;
 
     public DriveResource() {
     }
@@ -50,27 +50,27 @@ public class DriveResource implements Serializable, Comparable<DriveResource> {
         this.title = title;
     }
 
-    public String getDriveIdString() {
-        return driveIdString;
+    public String getEncodedDriveId() {
+        return encodedDriveId;
     }
 
-    public void setDriveIdString(String driveIdString) {
-        this.driveIdString = driveIdString;
+    public void setEncodedDriveId(String encodedDriveId) {
+        this.encodedDriveId = encodedDriveId;
     }
 
     @JsonIgnore
     public DriveId getDriveId() {
-        return DriveId.decodeFromString(driveIdString);
+        return DriveId.decodeFromString(encodedDriveId);
     }
 
     @JsonIgnore
     public void setDriveId(DriveId driveId) {
-        driveIdString = driveId.encodeToString();
+        encodedDriveId = driveId.encodeToString();
     }
 
     public void update(Metadata metadata) {
         this.title = metadata.getTitle();
-        this.driveIdString = metadata.getDriveId().encodeToString();
+        this.encodedDriveId = metadata.getDriveId().encodeToString();
     }
 
     @Override

@@ -209,7 +209,7 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
                 @Override
                 protected Boolean doInBackground(Void... voids) {
-                    return DriveResourcesManager.getInstance().updateResources(getMecuryActivity().getDriveResourceClient());
+                    return DriveResourcesManager.getInstance().loadResources(getMecuryActivity().getDriveResourceClient());
                 }
 
                 @Override
