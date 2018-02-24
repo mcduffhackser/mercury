@@ -33,16 +33,16 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
-    private static final String LOAD_FROM_DRIVE_KEY = "settings_load_from_drive";
+    private static final String ENABLE_DRIVE_PREF_KEY = "settings_enable_drive";
     private static final int DRC_SIGN = 301;
-    private SwitchPreference loadFromDrivePreference;
+    private SwitchPreference enableDrivePreference;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         addPreferencesFromResource(R.xml.settings);
-        loadFromDrivePreference = (SwitchPreference) findPreference(LOAD_FROM_DRIVE_KEY);
+        enableDrivePreference = (SwitchPreference) findPreference(ENABLE_DRIVE_PREF_KEY);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
-            case LOAD_FROM_DRIVE_KEY:
+            case ENABLE_DRIVE_PREF_KEY:
                 if (sharedPreferences.getBoolean(key, false)) {
                     ((MercuryActivity) getActivity()).refreshDriveSignin(DRC_SIGN);
                 }
@@ -77,7 +77,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         switch (event.getRequestCode()) {
             case DRC_SIGN:
                 if (!event.getSuccess()) {
-                    loadFromDrivePreference.setChecked(false);
+                    enableDrivePreference.setChecked(false);
                 }
                 break;
         }
