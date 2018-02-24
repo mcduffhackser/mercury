@@ -220,8 +220,6 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
                 @Override
                 protected void onPostExecute(LoadDriveResourcesStatus status) {
-                    // TODO message on empty view
-
                     if (status.message() != null) {
                         Toast.makeText(getActivity(), getString(R.string.update_drive_resource_failure), Toast.LENGTH_LONG).show();
                     }
@@ -289,20 +287,37 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
     }
 
     private void removeSelectedResources() {
-        SparseBooleanArray positions = getListView().getCheckedItemPositions();
-
-        DriveResourceBundle toRemove = new DriveResourceBundle(0);
-
-        for (int i = positions.size() - 1; i >= 0; i--) {
-            if (positions.valueAt(i)) {
-                toRemove.add(listAdapter.getItem(positions.keyAt(i)));
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected void onPreExecute() {
+                MercuryApplication.showProgressDialog(getFragmentManager(), getString(R.string.wait));
             }
-        }
 
-        DriveResourcesManager.getInstance().removeResources(toRemove); // TODO async?
+            @Override
+            protected Void doInBackground(Void... voids) {
+                SparseBooleanArray positions = getListView().getCheckedItemPositions();
 
-        listAdapter.clear();
-        listAdapter.addAll(DriveResourcesManager.getInstance().getResources());
+                DriveResourceBundle toRemove = new DriveResourceBundle(0);
+
+                for (int i = positions.size() - 1; i >= 0; i--) {
+                    if (positions.valueAt(i)) {
+                        toRemove.add(listAdapter.getItem(positions.keyAt(i)));
+                    }
+                }
+
+                DriveResourcesManager.getInstance().removeResources(toRemove);
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void voids) {
+                listAdapter.clear();
+                listAdapter.addAll(DriveResourcesManager.getInstance().getResources());
+
+                MercuryApplication.dismissProgressDialog(getFragmentManager());
+            }
+        }.execute();
     }
 
     private MercuryActivity getMecuryActivity() {
