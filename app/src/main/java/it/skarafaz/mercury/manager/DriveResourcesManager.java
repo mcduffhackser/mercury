@@ -32,6 +32,7 @@ import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import it.skarafaz.mercury.MercuryApplication;
+import it.skarafaz.mercury.exception.AddDriveResCancelException;
 import it.skarafaz.mercury.model.settings.DriveResource;
 import it.skarafaz.mercury.model.settings.DriveResourceBundle;
 import org.slf4j.Logger;
@@ -67,8 +68,8 @@ public class DriveResourcesManager {
         return resources;
     }
 
-    public boolean loadResources(DriveResourceClient driveResourceClient) {
-        boolean success = true;
+    public LoadDriveResourcesStatus loadResources(DriveResourceClient driveResourceClient) {
+        LoadDriveResourcesStatus status = LoadDriveResourcesStatus.SUCCESS;
 
         resources.clear();
 
@@ -84,30 +85,28 @@ public class DriveResourcesManager {
                 Integer statusCode = extractStatusCode(e);
 
                 if (statusCode == null || statusCode != DriveStatusCodes.DRIVE_RESOURCE_NOT_AVAILABLE) {
+                    status = LoadDriveResourcesStatus.ERRORS;
+
                     String message = e.getCause().getMessage().replace("\n", " ");
                     logger.error("Cannot sync drive resource {}: {}", resource, message);
-                    success = false;
                 }
             } catch (InterruptedException e) {
-                // ignore
+                status = LoadDriveResourcesStatus.INTERRUPTED;
             }
         }
 
         Collections.sort(resources);
-
         writeResources();
 
-        return success;
+        return status;
     }
 
-    public boolean addResource(DriveResourceClient driveResourceClient, Task<DriveId> pickFileTask) {
-        boolean success = false;
+    public AddDriveResourceStatus addResource(DriveResourceClient driveResourceClient, Task<DriveId> pickFileTask) {
+        AddDriveResourceStatus status = AddDriveResourceStatus.SUCCESS;
 
         try {
             DriveId driveId = Tasks.await(pickFileTask);
             Metadata metadata = Tasks.await(driveResourceClient.getMetadata(driveId.asDriveFile()));
-
-            success = true;
 
             DriveResource resource = new DriveResource(metadata);
 
@@ -122,12 +121,17 @@ public class DriveResourcesManager {
             Collections.sort(resources);
             writeResources();
         } catch (ExecutionException e) {
-            // ignore
+            if (e.getCause() instanceof AddDriveResCancelException) {
+                status = AddDriveResourceStatus.CANCELED;
+            } else {
+                status = AddDriveResourceStatus.ERROR;
+                logger.error(e.getMessage().replace("\n", " "));
+            }
         } catch (InterruptedException e) {
-            // ignore
+            status = AddDriveResourceStatus.INTERRUPTED;
         }
 
-        return success;
+        return status;
     }
 
     public void removeResources(Collection<DriveResource> toRemove) {

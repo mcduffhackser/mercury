@@ -43,7 +43,10 @@ import com.google.android.gms.tasks.TaskCompletionSource;
 import it.skarafaz.mercury.MercuryApplication;
 import it.skarafaz.mercury.R;
 import it.skarafaz.mercury.activity.MercuryActivity;
+import it.skarafaz.mercury.exception.AddDriveResCancelException;
+import it.skarafaz.mercury.manager.AddDriveResourceStatus;
 import it.skarafaz.mercury.manager.DriveResourcesManager;
+import it.skarafaz.mercury.manager.LoadDriveResourcesStatus;
 import it.skarafaz.mercury.model.event.DriveReady;
 import it.skarafaz.mercury.model.settings.DriveResource;
 import it.skarafaz.mercury.model.settings.DriveResourceBundle;
@@ -123,7 +126,7 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
                 if (resultCode == AppCompatActivity.RESULT_OK) {
                     openItemTask.setResult((DriveId) data.getParcelableExtra(OpenFileActivityOptions.EXTRA_RESPONSE_DRIVE_ID));
                 } else {
-                    openItemTask.setException(new RuntimeException());
+                    openItemTask.setException(new AddDriveResCancelException());
                 }
                 break;
         }
@@ -200,7 +203,7 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
     private void loadResources() {
         if (!busy) {
-            new AsyncTask<Void, Void, Boolean>() {
+            new AsyncTask<Void, Void, LoadDriveResourcesStatus>() {
                 @Override
                 protected void onPreExecute() {
                     busy = true;
@@ -211,20 +214,22 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
                 }
 
                 @Override
-                protected Boolean doInBackground(Void... voids) {
+                protected LoadDriveResourcesStatus doInBackground(Void... voids) {
                     return DriveResourcesManager.getInstance().loadResources(getMecuryActivity().getDriveResourceClient());
                 }
 
                 @Override
-                protected void onPostExecute(Boolean success) {
+                protected void onPostExecute(LoadDriveResourcesStatus status) {
                     // TODO message on empty view
 
-                    if (!success) {
+                    if (status.message() != null) {
                         Toast.makeText(getActivity(), getString(R.string.update_drive_resource_failure), Toast.LENGTH_LONG).show();
                     }
 
-                    listAdapter.clear();
-                    listAdapter.addAll(DriveResourcesManager.getInstance().getResources());
+                    if (status != LoadDriveResourcesStatus.INTERRUPTED) {
+                        listAdapter.clear();
+                        listAdapter.addAll(DriveResourcesManager.getInstance().getResources());
+                    }
 
                     progressBar.setVisibility(View.INVISIBLE);
                     addButton.show();
@@ -235,24 +240,26 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
     }
 
     private void addResource() {
-        new AsyncTask<Void, Void, Boolean>() {
+        new AsyncTask<Void, Void, AddDriveResourceStatus>() {
             @Override
             protected void onPreExecute() {
                 MercuryApplication.showProgressDialog(getFragmentManager(), getString(R.string.wait));
             }
 
             @Override
-            protected Boolean doInBackground(Void... voids) {
+            protected AddDriveResourceStatus doInBackground(Void... voids) {
                 return DriveResourcesManager.getInstance().addResource(getMecuryActivity().getDriveResourceClient(), pickTextFile());
             }
 
             @Override
-            protected void onPostExecute(Boolean success) {
-                if (success) {
+            protected void onPostExecute(AddDriveResourceStatus status) {
+                if (status.message() != null) {
+                    Toast.makeText(getActivity(), getString(R.string.drive_resource_added), Toast.LENGTH_LONG).show();
+                }
+
+                if (status == AddDriveResourceStatus.SUCCESS) {
                     listAdapter.clear();
                     listAdapter.addAll(DriveResourcesManager.getInstance().getResources());
-
-                    Toast.makeText(getActivity(), getString(R.string.drive_resource_added), Toast.LENGTH_LONG).show();
                 }
 
                 MercuryApplication.dismissProgressDialog(getFragmentManager());
