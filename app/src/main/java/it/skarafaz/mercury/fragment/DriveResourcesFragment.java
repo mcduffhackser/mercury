@@ -82,7 +82,7 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        listAdapter = new ArrayAdapter<>(getActivity(), R.layout.drive_resource_list_item, DriveResourcesManager.getInstance().getResources());
+        listAdapter = new ArrayAdapter<>(getActivity(), R.layout.drive_resource_list_item);
         setListAdapter(listAdapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -99,15 +99,18 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
     @Override
     public void onStart() {
         super.onStart();
-
         EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         getMecuryActivity().refreshDriveSignin(DRC_LOAD_RESOURCES);
     }
 
     @Override
     public void onStop() {
         EventBus.getDefault().unregister(this);
-
         super.onStop();
     }
 
@@ -220,7 +223,8 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
                         Toast.makeText(getActivity(), getString(R.string.update_drive_resource_failure), Toast.LENGTH_LONG).show();
                     }
 
-                    listAdapter.notifyDataSetChanged();
+                    listAdapter.clear();
+                    listAdapter.addAll(DriveResourcesManager.getInstance().getResources());
 
                     progressBar.setVisibility(View.INVISIBLE);
                     addButton.show();
@@ -244,12 +248,14 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
             @Override
             protected void onPostExecute(Boolean success) {
-                MercuryApplication.dismissProgressDialog(getFragmentManager());
-
                 if (success) {
-                    listAdapter.notifyDataSetChanged();
+                    listAdapter.clear();
+                    listAdapter.addAll(DriveResourcesManager.getInstance().getResources());
+
                     Toast.makeText(getActivity(), getString(R.string.drive_resource_added), Toast.LENGTH_LONG).show();
                 }
+
+                MercuryApplication.dismissProgressDialog(getFragmentManager());
             }
         }.execute();
     }
@@ -288,7 +294,8 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
         DriveResourcesManager.getInstance().removeResources(toRemove); // TODO async?
 
-        listAdapter.notifyDataSetChanged();
+        listAdapter.clear();
+        listAdapter.addAll(DriveResourcesManager.getInstance().getResources());
     }
 
     private MercuryActivity getMecuryActivity() {

@@ -107,16 +107,20 @@ public class DriveResourcesManager {
             DriveId driveId = Tasks.await(pickFileTask);
             Metadata metadata = Tasks.await(driveResourceClient.getMetadata(driveId.asDriveFile()));
 
+            success = true;
+
             DriveResource resource = new DriveResource(metadata);
 
-            if (!resources.contains(resource)) {
+            int i = resources.indexOf(resource);
+
+            if (i > 0) {
+                resources.get(i).update(metadata);
+            } else {
                 resources.add(resource);
-                Collections.sort(resources);
-
-                writeResources();
-
-                success = true;
             }
+
+            Collections.sort(resources);
+            writeResources();
         } catch (ExecutionException e) {
             // ignore
         } catch (InterruptedException e) {
