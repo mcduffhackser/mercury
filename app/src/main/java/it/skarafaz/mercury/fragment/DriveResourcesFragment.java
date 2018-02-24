@@ -66,6 +66,7 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
     private ArrayAdapter<DriveResource> listAdapter;
     private TaskCompletionSource<DriveId> openItemTask;
+    private DriveResourceBundle resources = new DriveResourceBundle(0);
     private boolean busy = false;
 
     @Override
@@ -85,7 +86,7 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        listAdapter = new ArrayAdapter<>(getActivity(), R.layout.drive_resource_list_item);
+        listAdapter = new ArrayAdapter<>(getActivity(), R.layout.drive_resource_list_item, resources);
         setListAdapter(listAdapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -225,8 +226,9 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
                     }
 
                     if (status != LoadDriveResourcesStatus.INTERRUPTED) {
-                        listAdapter.clear();
-                        listAdapter.addAll(DriveResourcesManager.getInstance().getResources());
+                        resources.clear();
+                        resources.addAll(DriveResourcesManager.getInstance().getResources());
+                        listAdapter.notifyDataSetChanged();
                     }
 
                     progressBar.setVisibility(View.INVISIBLE);
@@ -256,8 +258,9 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
                 }
 
                 if (status == AddDriveResourceStatus.SUCCESS) {
-                    listAdapter.clear();
-                    listAdapter.addAll(DriveResourcesManager.getInstance().getResources());
+                    resources.clear();
+                    resources.addAll(DriveResourcesManager.getInstance().getResources());
+                    listAdapter.notifyDataSetChanged();
                 }
 
                 MercuryApplication.dismissProgressDialog(getFragmentManager());
@@ -312,8 +315,9 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
             @Override
             protected void onPostExecute(Void voids) {
-                listAdapter.clear();
-                listAdapter.addAll(DriveResourcesManager.getInstance().getResources());
+                resources.clear();
+                resources.addAll(DriveResourcesManager.getInstance().getResources());
+                listAdapter.notifyDataSetChanged();
 
                 MercuryApplication.dismissProgressDialog(getFragmentManager());
             }
