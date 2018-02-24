@@ -253,6 +253,8 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
             @Override
             protected void onPostExecute(AddDriveResourceStatus status) {
+                MercuryApplication.dismissProgressDialog(getFragmentManager());
+
                 if (status.message() != null) {
                     Toast.makeText(getActivity(), getString(R.string.drive_resource_added), Toast.LENGTH_LONG).show();
                 }
@@ -262,8 +264,6 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
                     resources.addAll(DriveResourcesManager.getInstance().getResources());
                     listAdapter.notifyDataSetChanged();
                 }
-
-                MercuryApplication.dismissProgressDialog(getFragmentManager());
             }
         }.execute();
     }
@@ -315,11 +315,11 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
             @Override
             protected void onPostExecute(Void voids) {
+                MercuryApplication.dismissProgressDialog(getFragmentManager());
+
                 resources.clear();
                 resources.addAll(DriveResourcesManager.getInstance().getResources());
                 listAdapter.notifyDataSetChanged();
-
-                MercuryApplication.dismissProgressDialog(getFragmentManager());
             }
         }.execute();
     }
