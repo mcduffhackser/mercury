@@ -111,7 +111,7 @@ public class DriveResourcesManager {
 
             int i = resources.indexOf(resource);
 
-            if (i > 0) {
+            if (i >= 0) {
                 resources.get(i).update(metadata);
             } else {
                 resources.add(resource);
