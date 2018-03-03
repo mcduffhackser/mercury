@@ -33,7 +33,9 @@ import android.view.*;
 import android.widget.*;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import com.google.android.gms.drive.DriveClient;
 import com.google.android.gms.drive.DriveId;
+import com.google.android.gms.drive.DriveResourceClient;
 import com.google.android.gms.drive.OpenFileActivityOptions;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.SearchableField;
@@ -216,7 +218,9 @@ public class DriveResourcesFragment extends ListFragment implements AbsListView.
 
                 @Override
                 protected LoadDriveResourcesStatus doInBackground(Void... voids) {
-                    return DriveResourcesManager.getInstance().loadResources(getMecuryActivity().getDriveResourceClient());
+                    DriveClient driveClient = getMecuryActivity().getDriveClient();
+                    DriveResourceClient driveResourceClient = getMecuryActivity().getDriveResourceClient();
+                    return DriveResourcesManager.getInstance().loadResources(driveClient, driveResourceClient, true);
                 }
 
                 @Override
