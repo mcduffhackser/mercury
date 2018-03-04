@@ -21,14 +21,18 @@
 package it.skarafaz.mercury.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.gms.drive.DriveContents;
 import it.skarafaz.mercury.MercuryApplication;
 import it.skarafaz.mercury.R;
 import it.skarafaz.mercury.model.config.Command;
 import it.skarafaz.mercury.model.config.Server;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -40,13 +44,35 @@ public class ServerMapper {
         mapper = new ObjectMapper();
     }
 
-    public Server readValue(File src) throws IOException, ServerValidationException {
+    public Server parseConfigFile(File src) throws IOException, ServerValidationException {
         Server server = mapper.readValue(src, Server.class);
         Map<String, String> errors = validateServer(server);
         if (errors.size() > 0) {
-            throw new ServerValidationException(getValidationErrorMessage(src, errors));
+            throw new ServerValidationException(getValidationErrorMessage(R.string.validation_file, src.getName(), errors));
         }
         return server;
+    }
+
+    public Server parseDriveContents(DriveContents contents, String title) throws IOException, ServerValidationException {
+        Server server = mapper.readValue(readDriveContents(contents), Server.class);
+        Map<String, String> errors = validateServer(server);
+        if (errors.size() > 0) {
+            throw new ServerValidationException(getValidationErrorMessage(R.string.validation_drive_resource, title, errors));
+        }
+        return server;
+    }
+
+    private String readDriveContents(DriveContents contents) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(contents.getInputStream()));
+        StringBuilder text = new StringBuilder();
+
+        String line;
+        while ((line = reader.readLine()) != null) {
+            text.append(line).append("\n");
+        }
+        IOUtils.closeQuietly(reader);
+
+        return text.toString();
     }
 
     private Map<String, String> validateServer(Server server) {
@@ -101,8 +127,8 @@ public class ServerMapper {
         return errors;
     }
 
-    private String getValidationErrorMessage(File src, Map<String, String> errors) {
-        StringBuilder sb = new StringBuilder(getString(R.string.validation_file, src));
+    private String getValidationErrorMessage(int resId, String name, Map<String, String> errors) {
+        StringBuilder sb = new StringBuilder(getString(resId, name));
         int i = 1;
         for (Map.Entry<String, String> entry : errors.entrySet()) {
             sb.append(String.format(" %s %s", entry.getKey(), entry.getValue()));

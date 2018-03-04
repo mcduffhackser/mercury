@@ -43,7 +43,7 @@ import it.skarafaz.mercury.MercuryApplication;
 import it.skarafaz.mercury.R;
 import it.skarafaz.mercury.adapter.ServerPagerAdapter;
 import it.skarafaz.mercury.manager.config.ConfigManager;
-import it.skarafaz.mercury.manager.config.LoadConfigFilesStatus;
+import it.skarafaz.mercury.manager.config.LoadConfigurationStatus;
 import it.skarafaz.mercury.manager.settings.SettingsManager;
 import it.skarafaz.mercury.model.event.DriveReady;
 import it.skarafaz.mercury.ssh.SshEventSubscriber;
@@ -62,8 +62,6 @@ public class MainActivity extends MercuryActivity {
     protected LinearLayout emptyLayout;
     @BindView(R.id.message)
     protected TextView emptyMessage;
-    @BindView(R.id.settings)
-    protected TextView settingsButton;
     @BindView(R.id.pager)
     protected ViewPager serverPager;
 
@@ -83,13 +81,6 @@ public class MainActivity extends MercuryActivity {
 
         serverPagerAdapter = new ServerPagerAdapter(getSupportFragmentManager());
         serverPager.setAdapter(serverPagerAdapter);
-
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startAppInfo();
-            }
-        });
 
         sshEventSubscriber = new SshEventSubscriber(this);
 
@@ -190,7 +181,7 @@ public class MainActivity extends MercuryActivity {
 
     private void loadConfigFiles() {
         if (!busy) {
-            new AsyncTask<Void, Void, LoadConfigFilesStatus>() {
+            new AsyncTask<Void, Void, LoadConfigurationStatus>() {
                 @Override
                 protected void onPreExecute() {
                     busy = true;
@@ -200,28 +191,25 @@ public class MainActivity extends MercuryActivity {
                 }
 
                 @Override
-                protected LoadConfigFilesStatus doInBackground(Void... params) {
-                    return ConfigManager.getInstance().loadConfigFiles(getDriveResourceClient());
+                protected LoadConfigurationStatus doInBackground(Void... params) {
+                    MercuryApplication.requestPermission(MainActivity.this, PRC_WRITE_EXT_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    return ConfigManager.getInstance().loadConfiguration(getDriveClient(), getDriveResourceClient());
                 }
 
                 @Override
-                protected void onPostExecute(LoadConfigFilesStatus status) {
+                protected void onPostExecute(LoadConfigurationStatus status) {
                     progressBar.setVisibility(View.INVISIBLE);
                     if (ConfigManager.getInstance().getServers().size() > 0) {
                         serverPagerAdapter.updateServers(ConfigManager.getInstance().getServers());
                         serverPager.setVisibility(View.VISIBLE);
-                        if (status == LoadConfigFilesStatus.ERROR) {
+                        if (status != LoadConfigurationStatus.SUCCESS) {
                             Toast.makeText(MainActivity.this, getString(status.message()), Toast.LENGTH_LONG).show();
                         }
                     } else {
-                        emptyMessage.setText(getString(status.message(), ConfigManager.getInstance().getConfigDir()));
-                        emptyLayout.setVisibility(View.VISIBLE);
-                        if (status == LoadConfigFilesStatus.PERMISSION) {
-                            settingsButton.setVisibility(View.VISIBLE);
-                            MercuryApplication.requestPermission(MainActivity.this, PRC_WRITE_EXT_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                        } else {
-                            settingsButton.setVisibility(View.GONE);
+                        if (status.message() != null) {
+                            emptyMessage.setText(getString(status.message()));
                         }
+                        emptyLayout.setVisibility(View.VISIBLE);
                     }
                     busy = false;
                 }

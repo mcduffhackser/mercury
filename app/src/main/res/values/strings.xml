@@ -57,8 +57,6 @@
 
     <string name="add_drive_resource">Add Drive resource</string>
     <string name="cannot_add_drive_resource">Cannot add drive resource, please see log for details</string>
-    <string name="cannot_create_config_dir">Cannot create\n%s</string>
-    <string name="cannot_read_ext_storage">Cannot read external storage</string>
     <string name="cannot_write_ext_storage">Cannot write to external storage</string>
     <string name="command_sent">Command sent!</string>
     <string name="confirm_exec">Confirm execution?</string>
@@ -68,7 +66,6 @@
     <string name="connection_string_message">Type connection string for target server</string>
     <string name="drive_resource_added">Drive resource added</string>
     <string name="drive_signin_failure">Failed to sign-in to Google Drive</string>
-    <string name="empty_config_dir">No config files found in\n%s</string>
     <string name="empty_drive_resources">No drive resources selected</string>
     <string name="empty_log">Log file is empty</string>
     <string name="execution_failed">Command execution failed, please see log for details</string>
@@ -76,8 +73,7 @@
     <string name="export_public_key_permission">Mercury-SSH requires STORAGE permission to export the public key to sdcard</string>
     <string name="export_public_key_success">Public key exported to\n%s</string>
     <string name="exporting_public_key">Exporting public key&#8230;</string>
-    <string name="load_config_files_error">One or more config files did not pass the validity check, please see log for details</string>
-    <string name="load_config_files_permission">Mercury-SSH requires STORAGE permission to read config files</string>
+    <string name="load_configuration_errors">One or more errors occurred, please see log for details</string>
     <string name="no_commands">No commands defined\nfor this server</string>
     <string name="password">Password</string>
     <string name="select_drive_resource">Select a configuration file</string>
@@ -87,6 +83,7 @@
     <string name="type_login_password">Login %s</string>
     <string name="type_sudo_password">Sudo password for %s</string>
     <string name="update_drive_resource_failure">Cannot sync one or more drive resources, please see log for details</string>
+    <string name="validation_drive_resource">Failed to validate drive resource [%s]:</string>
     <string name="validation_missing">is missing</string>
     <string name="validation_invalid">is invalid</string>
     <string name="validation_file">Failed to validate [%s]:</string>

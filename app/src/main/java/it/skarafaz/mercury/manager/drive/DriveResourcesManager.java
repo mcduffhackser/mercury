@@ -59,10 +59,8 @@ public class DriveResourcesManager {
         return resources;
     }
 
-    public LoadDriveResourcesStatus loadResources(DriveClient driveCLient, DriveResourceClient driveResourceClient, boolean requestSync) {
-        if (requestSync) {
-            requestSync(driveCLient);
-        }
+    public LoadDriveResourcesStatus loadResources(DriveClient driveCLient, DriveResourceClient driveResourceClient) {
+        requestSync(driveCLient);
 
         LoadDriveResourcesStatus status = LoadDriveResourcesStatus.SUCCESS;
 
