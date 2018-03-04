@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+@SuppressWarnings("unused")
 public class SettingsManager {
     private static final Logger logger = LoggerFactory.getLogger(SettingsManager.class);
     public static final String ENABLE_DRIVE_KEY = "settings_enable_drive";
