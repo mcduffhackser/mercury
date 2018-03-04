@@ -27,13 +27,13 @@ import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 import it.skarafaz.mercury.R;
 import it.skarafaz.mercury.activity.MercuryActivity;
+import it.skarafaz.mercury.manager.settings.SettingsManager;
 import it.skarafaz.mercury.model.event.DriveReady;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
-    private static final String ENABLE_DRIVE_PREF_KEY = "settings_enable_drive";
     private static final int DRC_SIGN = 301;
     private SwitchPreference enableDrivePreference;
 
@@ -42,7 +42,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         super.onCreate(savedInstanceState);
 
         addPreferencesFromResource(R.xml.settings);
-        enableDrivePreference = (SwitchPreference) findPreference(ENABLE_DRIVE_PREF_KEY);
+        enableDrivePreference = (SwitchPreference) findPreference(SettingsManager.ENABLE_DRIVE_KEY);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
-            case ENABLE_DRIVE_PREF_KEY:
+            case SettingsManager.ENABLE_DRIVE_KEY:
                 if (sharedPreferences.getBoolean(key, false)) {
                     ((MercuryActivity) getActivity()).refreshDriveSignin(DRC_SIGN);
                 }
