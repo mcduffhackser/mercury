@@ -44,12 +44,17 @@ import it.skarafaz.mercury.R;
 import it.skarafaz.mercury.adapter.ServerPagerAdapter;
 import it.skarafaz.mercury.manager.config.ConfigManager;
 import it.skarafaz.mercury.manager.config.LoadConfigFilesStatus;
+import it.skarafaz.mercury.manager.settings.SettingsManager;
+import it.skarafaz.mercury.model.event.DriveReady;
 import it.skarafaz.mercury.ssh.SshEventSubscriber;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class MainActivity extends MercuryActivity {
     private static final int PRC_WRITE_EXT_STORAGE = 101;
     private static final int RC_START_APP_INFO = 201;
+    private static final int DRC_LOAD_CONFIG = 301;
 
     @BindView(R.id.progress)
     protected ProgressBar progressBar;
@@ -64,6 +69,7 @@ public class MainActivity extends MercuryActivity {
 
     private ServerPagerAdapter serverPagerAdapter;
     private SshEventSubscriber sshEventSubscriber;
+    private boolean toLoad = false;
     private boolean busy = false;
 
     @Override
@@ -87,7 +93,7 @@ public class MainActivity extends MercuryActivity {
 
         sshEventSubscriber = new SshEventSubscriber(this);
 
-        loadConfigFiles();
+        toLoad = true;
     }
 
     @Override
@@ -95,11 +101,23 @@ public class MainActivity extends MercuryActivity {
         super.onStart();
 
         EventBus.getDefault().register(sshEventSubscriber);
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (toLoad) {
+            load();
+            toLoad = false;
+        }
     }
 
     @Override
     protected void onStop() {
         EventBus.getDefault().unregister(sshEventSubscriber);
+        EventBus.getDefault().unregister(this);
 
         super.onStop();
     }
@@ -114,7 +132,7 @@ public class MainActivity extends MercuryActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_reload:
-                loadConfigFiles();
+                load();
                 return true;
             case R.id.action_help:
                 startActivity(new Intent(this, HelpActivity.class));
@@ -135,7 +153,7 @@ public class MainActivity extends MercuryActivity {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             switch (requestCode) {
                 case PRC_WRITE_EXT_STORAGE:
-                    loadConfigFiles();
+                    load();
                     break;
             }
         }
@@ -147,8 +165,26 @@ public class MainActivity extends MercuryActivity {
 
         switch (requestCode) {
             case RC_START_APP_INFO:
+                load();
+                break;
+        }
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onDriveReady(DriveReady event) {
+        switch (event.getRequestCode()) {
+            case DRC_LOAD_CONFIG:
                 loadConfigFiles();
                 break;
+        }
+        EventBus.getDefault().removeStickyEvent(event);
+    }
+
+    private void load() {
+        if (SettingsManager.getInstance().getEnableDrive()) {
+            refreshDriveSignin(DRC_LOAD_CONFIG);
+        } else {
+            loadConfigFiles();
         }
     }
 
@@ -165,7 +201,7 @@ public class MainActivity extends MercuryActivity {
 
                 @Override
                 protected LoadConfigFilesStatus doInBackground(Void... params) {
-                    return ConfigManager.getInstance().loadConfigFiles();
+                    return ConfigManager.getInstance().loadConfigFiles(getDriveResourceClient());
                 }
 
                 @Override

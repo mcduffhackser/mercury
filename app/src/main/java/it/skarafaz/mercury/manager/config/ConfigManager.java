@@ -22,9 +22,11 @@ package it.skarafaz.mercury.manager.config;
 
 import android.Manifest;
 import android.os.Environment;
+import com.google.android.gms.drive.DriveResourceClient;
 import it.skarafaz.mercury.MercuryApplication;
 import it.skarafaz.mercury.jackson.ServerMapper;
 import it.skarafaz.mercury.jackson.ServerValidationException;
+import it.skarafaz.mercury.manager.settings.SettingsManager;
 import it.skarafaz.mercury.model.config.Server;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -67,8 +69,12 @@ public class ConfigManager {
         return servers;
     }
 
-    public LoadConfigFilesStatus loadConfigFiles() {
+    public LoadConfigFilesStatus loadConfigFiles(DriveResourceClient driveResourceClient) {
         servers.clear();
+
+        if (SettingsManager.getInstance().getEnableDrive() && driveResourceClient != null) {
+            // TODO
+        }
 
         LoadConfigFilesStatus status = LoadConfigFilesStatus.SUCCESS;
         if (MercuryApplication.isExternalStorageReadable()) {
