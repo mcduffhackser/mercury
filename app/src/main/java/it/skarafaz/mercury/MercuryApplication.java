@@ -84,7 +84,7 @@ public class MercuryApplication extends Application {
     }
 
     public static boolean hasPermission(String permission) {
-        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(getContext(), permission) == PackageManager.PERMISSION_GRANTED;
     }
 
     public static boolean requestPermission(Activity activity, int requestCode, String permission) {

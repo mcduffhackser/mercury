@@ -49,7 +49,6 @@
                 android:defaultValue="false"/>
 
         <Preference
-                android:key="settings_manage_drive_resources"
                 android:title="@string/settings_manage_drive_resources"
                 android:dependency="settings_enable_drive">
             <intent
